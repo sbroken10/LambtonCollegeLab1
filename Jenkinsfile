@@ -1,16 +1,15 @@
 pipeline {
-    agent any // Or specify a 'label' for your Jenkins agent
+    agent any // O puedes especificar un 'agent' con una etiqueta (label) específica si tienes nodos configurados
 
     tools {
-        // Ensure 'Dependency-Check_Latest' is configured in Manage Jenkins -> Global Tool Configuration.
-        // The name 'dependency-check' here matches the tool type expected by Jenkins.
+        // Asegúrate de que 'Dependency-Check_Latest' esté configurado en Manage Jenkins -> Global Tool Configuration.
         'dependency-check' 'Dependency-Check_Latest'
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                // Change this URL and branch to your actual Python repository
+                // Cambia esta URL y la rama por las de tu repositorio real de Python
                 git branch: 'main', url: 'https://github.com/sbroken10/LambtonCollegeLab1.git'
             }
         }
@@ -18,8 +17,8 @@ pipeline {
         stage('Setup Python Environment and Install Dependencies') {
             steps {
                 script {
-                    sh 'python3 -m venv .venv' // Create a virtual environment
-                    // Activate and install dependencies from requirements.txt
+                    sh 'python3 -m venv .venv' // Crea un entorno virtual
+                    // Activa y instala dependencias de requirements.txt
                     sh '. .venv/bin/activate && pip install --no-cache-dir -r requirements.txt'
                 }
             }
@@ -28,7 +27,7 @@ pipeline {
         stage('Run Python Tests (Optional)') {
             steps {
                 script {
-                    // Activate the virtual environment and run pytest
+                    // Activa el entorno virtual y ejecuta pytest
                     sh '. .venv/bin/activate && pytest'
                 }
             }
@@ -36,22 +35,28 @@ pipeline {
 
         stage('Security Scan: Dependency-Check') {
             steps {
-                // This syntax is adjusted based on the "did you mean" suggestions from your previous Jenkins error log.
-                // 'odcInstallation' is the corrected parameter name for specifying the tool installation.
-                // 'format' is used instead of 'reportFormat' based on common plugin usage.
-                dependencyCheck odcInstallation: 'Dependency-Check_Latest',
-                                autoUpdate: true,
-                                failBuildOnCVSS: 7,
-                                project: 'LambtonCollegePythonApp',
-                                scanPath: '.',
-                                format: 'HTML,XML,JSON',
-                                outputPath: 'dependency-check-report/',
-                                skipOnError: false // Manteniendo este parámetro. Si vuelve a fallar por "skipOnError", tendremos que revisar de nuevo el Snippet Generator para ese parámetro específico.
+                // *** ¡LA CORRECCIÓN CLAVE ESTÁ AQUÍ! ***
+                // Usamos el nombre del paso "dependencyCheck" con minúscula inicial
+                // y los parámetros comunes que se usan para este plugin.
+                // Si la interfaz no te los muestra, confiamos en la documentación estándar
+                // y en que la instalación del plugin está correcta.
 
-                // Publish the Dependency-Check results for Jenkins UI
+                dependencyCheck(
+                    dependencyCheckInstallation: 'Dependency-Check_Latest', // El nombre del parámetro que aparece en tu captura de pantalla
+                    project: 'LambtonCollegePythonApp',
+                    scanPath: '.', // Escanea el directorio actual del workspace
+                    outputPath: 'dependency-check-report/', // Dónde guardar los reportes
+                    format: 'HTML,XML,JSON', // Formatos de reporte
+                    failBuildOnCVSS: 7, // Fallar si la severidad CVSS es 7 o más
+                    autoUpdate: true, // Actualizar la base de datos de vulnerabilidades
+                    additionalArguments: '--enableExperimental', // Argumentos adicionales (opcional)
+                    # skipOnError: false // Opcional, si sigues viendo errores de "skipOnError", puedes quitar esta línea o buscar el nombre correcto en la documentación del plugin para tu versión.
+                )
+
+                // Publica los resultados del escaneo en la interfaz de Jenkins.
                 dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
 
-                // Archive the HTML report for easy access
+                // Opcional: Archiva el reporte HTML para poder descargarlo fácilmente.
                 archiveArtifacts artifacts: 'dependency-check-report/dependency-check-report.html', fingerprint: true
             }
         }
@@ -65,7 +70,7 @@ pipeline {
 
     post {
         always {
-            // Clean up the Jenkins workspace after every build
+            // Limpia el workspace de Jenkins después de cada ejecución del pipeline para ahorrar espacio.
             cleanWs()
         }
     }
