@@ -37,7 +37,6 @@ pipeline {
                         --enableExperimental
                         --failOnCVSS 7
                         --data .
-                        --nvdDatafeedTimeout 1200000 # 20 minutos
                         --nvdApiKey 92091260-bf0d-4e3e-9acd-68596b26f830
                     '''.stripIndent().trim()
                 )
