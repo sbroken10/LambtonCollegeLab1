@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     tools {
+        // Asegúrate de que 'Dependency-Check_Latest' esté configurado en Manage Jenkins -> Global Tool Configuration.
         'dependency-check' 'Dependency-Check_Latest'
     }
 
@@ -15,33 +16,37 @@ pipeline {
         stage('Setup Python Environment and Install Dependencies') {
             steps {
                 script {
-                    sh 'python3 -m venv .venv'
+                    sh 'python3 -m venv .venv' // Create a virtual environment
+                    // Activate and install dependencies from requirements.txt
                     sh '. .venv/bin/activate && pip install --no-cache-dir -r requirements.txt'
                 }
             }
         }
 
-        
-
         stage('Security Scan: Dependency-Check') {
             steps {
+                // *** ¡LA SOLUCIÓN FINAL PARA LOS additionalArguments! ***
+                // Los argumentos CLI se ajustan para que coincidan con la ayuda de la herramienta.
                 dependencyCheck(
                     odcInstallation: 'Dependency-Check_Latest',
                     additionalArguments: '''
                         --project LambtonCollegePythonApp
-                        --scan .
-                        --format HTML JSON XML
-                        --output dependency-check-report/
+                        -s .                 # CORRECCIÓN: Usar '-s' o '--scan' para el path de escaneo
+                        -f HTML JSON XML     # CORRECCIÓN: Usar '-f' o '--format' para el formato
+                        -o dependency-check-report/ # CORRECCIÓN: Usar '-o' o '--out' para el directorio de salida
                         --enableExperimental
                         --failOnCVSS 7
                         --autoUpdate
                         --data .
-                        --nvdDatafeedTimeout 1200000 # Aumentar el tiempo de espera a 20 minutos (en milisegundos)
+                        --nvdDatafeedTimeout 1200000 # 20 minutos
+                        # --nvdApiKey YourNvdApiKeyHere # Opcional: Si tienes una clave API de NVD para más actualizaciones
                     '''.stripIndent().trim()
-                    // Si quieres pasar skipOnError, busca su argumento CLI si existe, por ejemplo: --skipOnError
                 )
 
+                // Publica los resultados del escaneo en la interfaz de Jenkins.
                 dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
+
+                // Opcional: Archiva el reporte HTML para poder descargarlo fácilmente.
                 archiveArtifacts artifacts: 'dependency-check-report/dependency-check-report.html', fingerprint: true
             }
         }
