@@ -36,10 +36,9 @@ pipeline {
                         -o dependency-check-report/ # CORRECCIÓN: Usar '-o' o '--out' para el directorio de salida
                         --enableExperimental
                         --failOnCVSS 7
-                        --autoUpdate
                         --data .
                         --nvdDatafeedTimeout 1200000 # 20 minutos
-                        # --nvdApiKey YourNvdApiKeyHere # Opcional: Si tienes una clave API de NVD para más actualizaciones
+                        --nvdApiKey 92091260-bf0d-4e3e-9acd-68596b26f830
                     '''.stripIndent().trim()
                 )
 
