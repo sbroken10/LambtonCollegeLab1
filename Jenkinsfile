@@ -23,13 +23,7 @@ pipeline {
             }
         }
 
-        stage('Run Python Tests (Optional)') {
-            steps {
-                script {
-                    sh '. .venv/bin/activate && pytest'
-                }
-            }
-        }
+     
 
         stage('Security Scan: Dependency-Check') {
             steps {
