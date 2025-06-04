@@ -21,14 +21,7 @@ pipeline {
             }
         }
 
-        // Si tienes tests, déjalo. Si no, recuerda que este stage hace fallar el build si no hay tests.
-        stage('Run Python Tests (Optional)') {
-            steps {
-                script {
-                    sh '. .venv/bin/activate && pytest'
-                }
-            }
-        }
+        
 
         stage('Security Scan: Dependency-Check') {
             steps {
