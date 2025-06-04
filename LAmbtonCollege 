@@ -1,0 +1,37 @@
+def count_characters(text):
+    """
+    Function to count the number of characters in a text string.
+    Includes spaces and all other characters.
+    """
+    length = len(text)
+    return length
+
+def main():
+    """
+    Main function to run the program.
+    """
+    print("Welcome to the Character Counter")
+
+    # Prompt the user to enter text
+    # We use input() to get user input
+    entered_text = input("Please, enter the text you want to analyze: ")
+
+    # Calculate the number of characters
+    number_of_characters = count_characters(entered_text)
+
+    # Display the result
+    # We use an f-string to format the output clearly
+    print(f"\nThe text you entered has {number_of_characters} characters.")
+    print("(This includes spaces and all other symbols).")
+
+    # Example of how to count characters without spaces (optional)
+    text_without_spaces = entered_text.replace(" ", "")
+    characters_without_spaces = len(text_without_spaces)
+    print(f"If we don't count spaces, the text has {characters_without_spaces} characters.")
+
+
+# This is the standard entry point for Python scripts.
+# It ensures that main() is only called when the script is executed directly,
+# and not when it is imported as a module in another script.
+if __name__ == "__main__":
+    main()
