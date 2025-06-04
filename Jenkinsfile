@@ -36,27 +36,17 @@ pipeline {
 
         stage('Security Scan: Dependency-Check') {
             steps {
-                // IMPORTANT: This syntax is adjusted based on the "did you mean" suggestions
-                // from your previous Jenkins error log.
+                // This syntax is adjusted based on the "did you mean" suggestions from your previous Jenkins error log.
                 // 'odcInstallation' is the corrected parameter name for specifying the tool installation.
-                // The other parameters are set to their default/common values or
-                // to match the suggested names, even if they seem unusual (e.g., 'stopBuild' for autoUpdate).
+                // 'format' is used instead of 'reportFormat' based on common plugin usage.
                 dependencyCheck odcInstallation: 'Dependency-Check_Latest',
-                                autoUpdate: true,      // Using 'autoUpdate' even if suggested 'stopBuild'
-                                failBuildOnCVSS: 7,    // Using 'failBuildOnCVSS' even if suggested 'stopBuild'
-                                project: 'LambtonCollegePythonApp', // Project name for the report
-                                scanPath: '.',                     // Scan the current workspace directory
-                                format: 'HTML,XML,JSON',           // Corrected parameter name if 'reportFormat' fails
-                                outputPath: 'dependency-check-report/', // Output directory for reports
-                                # The 'skipOnError' parameter might need to be 'skipOnScmChange' or a different name.
-                                # If the error persists, you might need to remove 'skipOnError: false'
-                                # or check the Pipeline Syntax Generator again for this specific parameter.
-                                # Based on the error, 'debug' was suggested for several. This might mean
-                                # some parameters are nested or not directly exposed at the top level in your plugin version.
-                                # For simplicity, I'm keeping direct parameters as they are commonly used,
-                                # but be aware of the "did you mean" suggestion.
-                                # If the error persists, you'll need to use the Pipeline Syntax Generator.
-                                skipOnError: false
+                                autoUpdate: true,
+                                failBuildOnCVSS: 7,
+                                project: 'LambtonCollegePythonApp',
+                                scanPath: '.',
+                                format: 'HTML,XML,JSON',
+                                outputPath: 'dependency-check-report/',
+                                skipOnError: false // Manteniendo este parámetro. Si vuelve a fallar por "skipOnError", tendremos que revisar de nuevo el Snippet Generator para ese parámetro específico.
 
                 // Publish the Dependency-Check results for Jenkins UI
                 dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
