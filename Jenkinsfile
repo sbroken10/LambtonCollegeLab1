@@ -30,13 +30,13 @@ pipeline {
                 dependencyCheck(
                     odcInstallation: 'Dependency-Check_Latest',
                     additionalArguments: '''
-                        --project LambtonCollegePythonApp
-                        -s .                 # CORRECCIÓN: Usar '-s' o '--scan' para el path de escaneo
-                        -f HTML JSON XML     # CORRECCIÓN: Usar '-f' o '--format' para el formato
-                        -o dependency-check-report/ # CORRECCIÓN: Usar '-o' o '--out' para el directorio de salida
-                        --enableExperimental
-                        --failOnCVSS 7
-                        --data .
+                        --project LambtonCollegePythonApp \
+                        --scan . \
+                        --format HTML JSON XML \
+                        --out dependency-check-report/ \
+                        --enableExperimental \
+                        --failOnCVSS 7 \
+                        --data . \
                         --nvdApiKey 92091260-bf0d-4e3e-9acd-68596b26f830
                     '''.stripIndent().trim()
                 )
