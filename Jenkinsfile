@@ -42,4 +42,3 @@ stages {
             echo '¡Pipeline fallida! ❌'
         }
     }
-}
