@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     tools {
-        // Asegúrate de que 'Dependency-Check_Latest' esté configurado en Manage Jenkins -> Global Tool Configuration.
         'dependency-check' 'Dependency-Check_Latest'
     }
 
@@ -16,21 +15,23 @@ pipeline {
         stage('Setup Python Environment and Install Dependencies') {
             steps {
                 script {
-                    sh 'python3 -m venv .venv' // Create a virtual environment
-                    // Activate and install dependencies from requirements.txt
+                    sh 'python3 -m venv .venv'
                     sh '. .venv/bin/activate && pip install --no-cache-dir -r requirements.txt'
                 }
             }
         }
 
-     
+        // Si tienes tests, déjalo. Si no, recuerda que este stage hace fallar el build si no hay tests.
+        stage('Run Python Tests (Optional)') {
+            steps {
+                script {
+                    sh '. .venv/bin/activate && pytest'
+                }
+            }
+        }
 
         stage('Security Scan: Dependency-Check') {
             steps {
-                // *** ¡LA SOLUCIÓN BASADA EN EL SNIPPET GENERATOR! ***
-                // Todos los parámetros de configuración de Dependency-Check van dentro de 'additionalArguments'.
-                // 'odcInstallation' es el único parámetro de nivel superior.
-
                 dependencyCheck(
                     odcInstallation: 'Dependency-Check_Latest',
                     additionalArguments: '''
@@ -41,16 +42,13 @@ pipeline {
                         --enableExperimental
                         --failOnCVSS 7
                         --autoUpdate
-                        --nvdApiKey YourNvdApiKeyHere # Opcional: Si tienes una clave API de NVD para más actualizaciones
+                        --data .
+                        --nvdDatafeedTimeout 1200000 # Aumentar el tiempo de espera a 20 minutos (en milisegundos)
                     '''.stripIndent().trim()
                     // Si quieres pasar skipOnError, busca su argumento CLI si existe, por ejemplo: --skipOnError
                 )
 
-                // Publica los resultados del escaneo en la interfaz de Jenkins.
-                // Esto DEBE permanecer fuera de additionalArguments, ya que es un paso de Jenkins.
                 dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
-
-                // Opcional: Archiva el reporte HTML para poder descargarlo fácilmente.
                 archiveArtifacts artifacts: 'dependency-check-report/dependency-check-report.html', fingerprint: true
             }
         }
