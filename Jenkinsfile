@@ -16,7 +16,8 @@ pipeline {
         stage('Setup Python Environment and Install Dependencies') {
             steps {
                 script {
-                    sh 'python3 -m venv .venv'
+                    sh 'python3 -m venv .venv' // Create a virtual environment
+                    // Activate and install dependencies from requirements.txt
                     sh '. .venv/bin/activate && pip install --no-cache-dir -r requirements.txt'
                 }
             }
@@ -32,27 +33,27 @@ pipeline {
 
         stage('Security Scan: Dependency-Check') {
             steps {
-                // *** ¡ESTE ES EL INTENTO FINAL USANDO SÓLO LAS SUGERENCIAS DE ERROR Y SIN COMENTARIOS EN LUGAR INCORRECTO! ***
-                // Si esto falla, la versión de tu plugin es probablemente demasiado antigua/peculiar
-                // y necesitará una actualización o consulta de su documentación específica.
+                // *** ¡LA SOLUCIÓN BASADA EN EL SNIPPET GENERATOR! ***
+                // Todos los parámetros de configuración de Dependency-Check van dentro de 'additionalArguments'.
+                // 'odcInstallation' es el único parámetro de nivel superior.
 
                 dependencyCheck(
-                    odcInstallation: 'Dependency-Check_Latest', // 'dependencyCheckInstallation' -> 'odcInstallation'
-                    
-                    project: 'LambtonCollegePythonApp',
-                    scanPath: '.',
-                    outputPath: 'dependency-check-report/',
-                    format: 'HTML,XML,JSON',
-                    
-                    // Aplicando las sugerencias directas para stopBuild y skipOnScmChange
-                    // Esto es una CONJETURA FUERTE sobre cómo el plugin combina estos parámetros.
-                    stopBuild: true,
-                    skipOnScmChange: false,
-                    
-                    additionalArguments: '--enableExperimental' 
+                    odcInstallation: 'Dependency-Check_Latest',
+                    additionalArguments: '''
+                        --project LambtonCollegePythonApp
+                        --scan .
+                        --format HTML JSON XML
+                        --output dependency-check-report/
+                        --enableExperimental
+                        --failOnCVSS 7
+                        --autoUpdate
+                        --nvdApiKey YourNvdApiKeyHere # Opcional: Si tienes una clave API de NVD para más actualizaciones
+                    '''.stripIndent().trim()
+                    // Si quieres pasar skipOnError, busca su argumento CLI si existe, por ejemplo: --skipOnError
                 )
 
                 // Publica los resultados del escaneo en la interfaz de Jenkins.
+                // Esto DEBE permanecer fuera de additionalArguments, ya que es un paso de Jenkins.
                 dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
 
                 // Opcional: Archiva el reporte HTML para poder descargarlo fácilmente.
