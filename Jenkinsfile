@@ -1,6 +1,3 @@
-De acuerdo, aquí tienes el Jenkinsfile completo con las correcciones aplicadas y comentarios adicionales para mayor claridad:
-
-Groovy
 
 pipeline {
     agent any // O puedes especificar un 'agent' con una etiqueta (label) específica si tienes nodos configurados
