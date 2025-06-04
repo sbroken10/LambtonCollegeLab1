@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     tools {
+        // Asegúrate de que 'Dependency-Check_Latest' esté configurado en Manage Jenkins -> Global Tool Configuration.
         'dependency-check' 'Dependency-Check_Latest'
     }
 
@@ -31,45 +32,23 @@ pipeline {
 
         stage('Security Scan: Dependency-Check') {
             steps {
-                // *** ¡ESTE ES EL INTENTO FINAL USANDO SÓLO LAS SUGERENCIAS DE ERROR! ***
+                // *** ¡ESTE ES EL INTENTO FINAL USANDO SÓLO LAS SUGERENCIAS DE ERROR Y SIN COMENTARIOS EN LUGAR INCORRECTO! ***
                 // Si esto falla, la versión de tu plugin es probablemente demasiado antigua/peculiar
                 // y necesitará una actualización o consulta de su documentación específica.
 
                 dependencyCheck(
                     odcInstallation: 'Dependency-Check_Latest', // 'dependencyCheckInstallation' -> 'odcInstallation'
                     
-                    # Las siguientes sugerencias de 'debug' son muy inusuales.
-                    # Es posible que el plugin espere un mapa Groovy literal o una cadena JSON para el parámetro 'debug',
-                    # y que las otras opciones (project, scanPath, outputPath, format) vayan DENTRO de ese 'debug'.
-                    # Dado que no sabemos el formato exacto de 'debug', la única opción es ponerlas como parámetros individuales
-                    # con los nombres que te sugirió ANTES del cambio a 'debug' para todos.
-                    # Pero el último error sugiere 'debug' para TODOS.
-
-                    # Si 'debug' tiene que encapsular todo, sería algo así (altamente inusual):
-                    # debug: [
-                    #   project: 'LambtonCollegePythonApp',
-                    #   scanPath: '.',
-                    #   outputPath: 'dependency-check-report/',
-                    #   format: 'HTML,XML,JSON'
-                    # ],
-
-                    # Dado lo inusual de 'debug' como reemplazo para todos, y que "stopBuild"
-                    # fue sugerido para dos de ellas, intentemos con los parámetros que ya intentamos
-                    # pero usando 'odcInstallation' y forzando 'stopBuild' si hay un error:
-
-                    project: 'LambtonCollegePythonApp', # Manteniendo el nombre, aunque se sugirió 'debug'
-                    scanPath: '.', # Manteniendo el nombre, aunque se sugirió 'debug'
-                    outputPath: 'dependency-check-report/', # Manteniendo el nombre, aunque se sugirió 'debug'
-                    format: 'HTML,XML,JSON', # Manteniendo el nombre, aunque se sugirió 'debug'
+                    project: 'LambtonCollegePythonApp',
+                    scanPath: '.',
+                    outputPath: 'dependency-check-report/',
+                    format: 'HTML,XML,JSON',
                     
-                    # Aplicando las sugerencias directas para stopBuild y skipOnScmChange
-                    stopBuild: true, # Combina failBuildOnCVSS y autoUpdate en uno solo. Esto es un GUESS FUERTE.
-                                     # Si esto falla, significa que no combinan, y deberíamos probar
-                                     # stopBuild para cada uno por separado: autoUpdate: true, stopBuild: 7 (raro)
-
-                    skipOnScmChange: false, # Reemplazo para 'skipOnError'
+                    // Aplicando las sugerencias directas para stopBuild y skipOnScmChange
+                    // Esto es una CONJETURA FUERTE sobre cómo el plugin combina estos parámetros.
+                    stopBuild: true,
+                    skipOnScmChange: false,
                     
-                    # additionalArguments es generalmente robusto y se pasa directamente al binario
                     additionalArguments: '--enableExperimental' 
                 )
 
