@@ -50,7 +50,9 @@ pipeline {
                     failBuildOnCVSS: 7, // Fallar si la severidad CVSS es 7 o más
                     autoUpdate: true, // Actualizar la base de datos de vulnerabilidades
                     additionalArguments: '--enableExperimental', // Argumentos adicionales (opcional)
-                    # skipOnError: false // Opcional, si sigues viendo errores de "skipOnError", puedes quitar esta línea o buscar el nombre correcto en la documentación del plugin para tu versión.
+                    // La línea problemática del comentario ha sido eliminada.
+                    // Si el parámetro 'skipOnError' realmente es necesario y te da error,
+                    // tendremos que buscar el nombre correcto en la documentación de tu plugin.
                 )
 
                 // Publica los resultados del escaneo en la interfaz de Jenkins.
@@ -75,3 +77,4 @@ pipeline {
         }
     }
 }
+
